@@ -15,6 +15,7 @@ class Book(models.Model):
     book_title = models.CharField(max_length=200)
     genres = models.TextField(null=True)
     image_url = models.CharField(max_length=200, null=True)
+    checked_out = models.BooleanField(default=False)
 
     def __str__(self):
         return self.book_title
