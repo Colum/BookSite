@@ -3,23 +3,29 @@ from .models import Book
 from django.core import serializers
 from django.forms.models import model_to_dict
 import json
+from django.core.paginator import Paginator
 
-
-# todo move to response message class
+# todo move to response message to dedicated class
 not_found_body = {'message': 'not found'}
 ok_body = {'message': 'request ok'}
 book_checked_out_body = {'message': 'book already checked out'}
 book_not_checkout_out_body = {'message': 'book not checked out; cannot return'}
 
 
-def books(request):
-    print(request.GET)
-    for query in request.GET:
-        print(query + ' ' + request.GET[query])
-    return HttpResponse('You made a request for all the books')
+def get_all_books(request):
+    page_num = request.GET.get('page') if request.GET.get('page') is not None else 1
+    rating = request.GET.get('rating') if request.GET.get('rating') is not None else 0
+
+    book_list = Book.objects.filter(book_rating__gte=rating)
+
+    paginator = Paginator(book_list, 25)  # Show 25 books per page
+    book_page = paginator.get_page(page_num)
+
+    json_list = serializers.serialize('json', book_page)
+    return create_http_response(json_list)
 
 
-def books_by_id(request, book_id):
+def get_book_by_id(request, book_id):
     result = Book.objects.get(pk=book_id)
     dict_obj = model_to_dict(result)
     return create_http_response(dict_obj)
@@ -46,5 +52,9 @@ def return_book(request, book_id):
 
 
 def create_http_response(body_dict, http_code=200):
-    return HttpResponse(json.dumps(body_dict), content_type='application/json', status=http_code)
+    if type(body_dict) is str:
+        formatted_body = body_dict
+    else:
+        formatted_body = json.dumps(body_dict)
+    return HttpResponse(formatted_body, content_type='application/json', status=http_code)
 
