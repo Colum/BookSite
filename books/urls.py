@@ -1,10 +1,10 @@
 from django.urls import path
 
-from . import views
+from . import rest
 
 urlpatterns = [
-    path('', views.get_all_books),
-    path('<int:book_id>/', views.get_book_by_id),
-    path('checkout/<int:book_id>/', views.checkout_book),
-    path('return/<int:book_id>/', views.return_book)
+    path('', rest.get_all_books),
+    path('<int:book_id>/', rest.get_book_by_id),
+    path('checkout/<int:book_id>/', rest.checkout_book),
+    path('return/<int:book_id>/', rest.return_book)
 ]
