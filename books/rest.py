@@ -12,14 +12,18 @@ not_found_body = {'message': 'book not found'}
 ok_body = {'message': 'request ok'}
 book_checked_out_body = {'message': 'book already checked out'}
 book_not_checkout_out_body = {'message': 'book not checked out; cannot return'}
+bad_req_body = {'message': 'bad request'}
 
 
 @require_GET
 def get_all_books(request):
-    page_num = request.GET.get('page') if request.GET.get('page') is not None else 1
-    rating = request.GET.get('rating') if request.GET.get('rating') is not None else 0
-    order_by = request.GET.get('orderby')
+    page_num = get_page_num(request.GET.get('page'))
+    rating = get_rating(request.GET.get('rating'))
 
+    if not rating or not page_num:
+        return create_http_response(bad_req_body, 400)
+
+    order_by = request.GET.get('orderby')
     if order_by not in ['book_authors', 'book_format', 'book_title']:
         order_by = 'id'
 
@@ -79,3 +83,20 @@ def create_http_response(body_dict, http_code=200):
         formatted_body = json.dumps(body_dict)
     return HttpResponse(formatted_body, content_type='application/json', status=http_code)
 
+
+def get_page_num(path_param):
+    if path_param is None:
+        return 1
+    try:
+        return int(path_param)
+    except ValueError:
+        return False
+
+
+def get_rating(path_param):
+    if path_param is None:
+        return 0.01  # allows return value to be compared to bool (change..)
+    try:
+        return float(path_param)
+    except ValueError:
+        return False
