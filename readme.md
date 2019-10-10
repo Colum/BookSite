@@ -29,6 +29,6 @@ GET /books (optional query params; page, rating, orderby=[book_authors | book_fo
 
 GET /books/{id}
 
-POST /books/checkout/{id}/
+POST /books/checkout/{id}
 
-POST /books/return/{id}/
+POST /books/return/{id}
